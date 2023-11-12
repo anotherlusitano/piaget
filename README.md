@@ -1,6 +1,5 @@
 # piaget
-
-A new Flutter project.
+Yes, the code is a mess :)
 
 ## Getting Started
 
