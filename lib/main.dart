@@ -1,12 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:quick_actions/quick_actions.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //we need this to download the files :(
+  await FlutterDownloader.initialize(
+    debug: true,
+  );
+  await Permission.storage.request();
   stupidFunctionToKnowTheInformationBcImTired().then((aleluia) {
     runApp(
       MaterialApp(
@@ -103,6 +110,20 @@ class _HellOnEarthState extends State<HellOnEarth> {
     ]);
   }
 
+  InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
+      crossPlatform: InAppWebViewOptions(
+        useShouldOverrideUrlLoading: true,
+        useOnDownloadStart: true, //======================Very Important
+        mediaPlaybackRequiresUserGesture: false,
+      ),
+      android: AndroidInAppWebViewOptions(
+        useHybridComposition: true,
+        supportMultipleWindows: true,
+      ),
+      ios: IOSInAppWebViewOptions(
+        allowsInlineMediaPlayback: true,
+      ));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +132,21 @@ class _HellOnEarthState extends State<HellOnEarth> {
           key: webViewKey,
           onWebViewCreated: (controller) {
             _webViewController = controller;
+          },
+          initialOptions: options,
+          onDownloadStartRequest: (controller, url) async {
+            // Directory? tempDir = await getExternalStorageDirectory();
+            Directory? tempDir = await getDownloadsDirectory();
+            print("onDownload ${url.url.toString()}\n ${tempDir!.path}");
+            await FlutterDownloader.enqueue(
+              url: url.url.toString(),
+              fileName: url.suggestedFilename, //================File Name
+              savedDir: tempDir.path,
+              showNotification: true,
+              requiresStorageNotLow: false,
+              openFileFromNotification: true,
+              saveInPublicStorage: true,
+            );
           },
           initialUrlRequest: URLRequest(url: Uri.parse(url)),
           onLoadStop: (controller, currentUrl) async {
