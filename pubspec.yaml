@@ -38,6 +38,8 @@ dependencies:
   quick_actions: ^1.0.6
   flutter_launcher_icons: ^0.13.1
   flutter_inappwebview: ^5.8.0
+  flutter_downloader: ^1.9.1
+  permission_handler: ^10.2.0
   path_provider: ^2.1.1
 
 dev_dependencies:
